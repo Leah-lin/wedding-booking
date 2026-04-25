@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>結婚書約 · 預約</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Noto+Serif+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --cream:       #FAF7F2;
+            --cream-dark:  #EDE4DA;
+            --nude-light:  #F5DECE;
+            --nude:        #EABCAA;
+            --nude-dark:   #D49A8A;
+            --rose:        #C07B6D;
+            --brown:       #5A3D35;
+            --brown-mid:   #8B6B63;
+            --brown-light: #B09990;
+            --white:       #FFFFFF;
+            --shadow:      rgba(90, 61, 53, 0.1);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background: var(--cream);
+            color: var(--brown);
+            line-height: 1.9;
+            overflow-x: hidden;
+        }
+
+        /* ── Pages ── */
+        .page { display: none; min-height: 100vh; animation: fadeIn 0.55s ease; }
+        .page.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Navigation ── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 18px 48px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(250, 247, 242, 0.93);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(234, 188, 170, 0.28);
+        }
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem; font-style: italic;
+            color: var(--brown); cursor: pointer; letter-spacing: 0.05em;
+        }
+        .nav-links { display: flex; gap: 32px; align-items: center; }
+        .nav-link {
+            font-size: 0.83rem; color: var(--brown-mid);
+            cursor: pointer; letter-spacing: 0.12em;
+            background: none; border: none; font-family: inherit;
+            transition: color 0.25s;
+        }
+        .nav-link:hover { color: var(--rose); }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            padding: 13px 36px;
+            background: var(--rose); color: var(--white);
+            border: none; border-radius: 50px;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.88rem; letter-spacing: 0.18em;
+            cursor: pointer; transition: all 0.28s;
+            box-shadow: 0 4px 22px rgba(192, 123, 109, 0.28);
+        }
+        .btn-primary:hover {
+            background: var(--nude-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 28px rgba(192, 123, 109, 0.38);
+        }
+        .btn-outline {
+            padding: 13px 36px;
+            background: transparent; color: var(--brown);
+            border: 1.5px solid var(--nude-dark); border-radius: 50px;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 0.88rem; letter-spacing: 0.18em;
+            cursor: pointer; transition: all 0.28s;
+        }
+        .btn-outline:hover { background: var(--nude-light); transform: translateY(-2px); }
+
+        /* ── Section shared ── */
+        .section {
+            padding: 80px 48px;
+            max-width: 1040px; margin: 0 auto;
+        }
+        .section-header { text-align: center; margin-bottom: 56px; }
+        .section-deco { font-size: 1.1rem; color: var(--nude-dark); letter-spacing: 0.55em; line-height: 2; }
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.9rem, 4vw, 2.9rem); font-weight: 400;
+            color: var(--brown); margin: 10px 0; letter-spacing: 0.04em;
+        }
+        .section-subtitle { font-size: 0.88rem; color: var(--brown-mid); line-height: 2.2; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--cream); }
+        ::-webkit-scrollbar-thumb { background: var(--nude); border-radius: 3px; }
+
+
+        /* ═══ PAGE 1 · HERO ═══ */
+        #page-home { position: relative; }
+
+        .hero {
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            position: relative; overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 90% 70% at 25% 35%, rgba(245, 222, 206, 0.9) 0%, transparent 65%),
+                radial-gradient(ellipse 70% 80% at 75% 65%, rgba(212, 154, 138, 0.55) 0%, transparent 65%),
+                radial-gradient(ellipse 120% 120% at 50% 50%, #FAF7F2 0%, #F0E4D8 100%);
+        }
+        .hero-img {
+            position: absolute; inset: 0; opacity: 0;
+            background: center/cover no-repeat;
+            transition: opacity 0.5s;
+        }
+        .hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(250,247,242,0.1) 0%, rgba(250,247,242,0.5) 100%);
+            pointer-events: none;
+        }
+
+        .petal {
+            position: absolute; border-radius: 50% 0 50% 0;
+            opacity: 0; animation: floatPetal 12s ease-in-out infinite;
+            pointer-events: none;
+        }
+        @keyframes floatPetal {
+            0%   { opacity: 0; transform: translateY(0) rotate(0deg); }
+            10%  { opacity: 0.4; }
+            90%  { opacity: 0.25; }
+            100% { opacity: 0; transform: translateY(-80vh) rotate(360deg); }
+        }
+
+        .hero-plant-left  { position: absolute; left: 2%;  bottom: 5%; width: clamp(100px,14vw,200px); opacity: 0.18; pointer-events: none; }
+        .hero-plant-right { position: absolute; right: 2%; top: 8%;   width: clamp(80px,12vw,170px);  opacity: 0.18; transform: scaleX(-1) rotate(-10deg); pointer-events: none; }
+
+        .hero-content {
+            position: relative; z-index: 2;
+            text-align: center; padding: 0 24px;
+        }
+        .hero-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic; font-size: 1rem;
+            color: var(--rose); letter-spacing: 0.38em;
+            margin-bottom: 18px; display: block;
+        }
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3.2rem, 9vw, 6rem); font-weight: 300;
+            color: var(--brown); line-height: 1.08; letter-spacing: 0.06em;
+            margin-bottom: 14px;
+        }
+        .hero-sub {
+            font-size: 0.82rem; color: var(--brown-light);
+            letter-spacing: 0.3em; margin-bottom: 52px;
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+        }
+        .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+        .ig-float {
+            position: absolute; bottom: 38px; left: 50%; transform: translateX(-50%);
+            z-index: 2;
+            display: flex; align-items: center; gap: 8px;
+            color: var(--brown-mid); text-decoration: none;
+            font-size: 0.78rem; letter-spacing: 0.18em;
+            transition: color 0.25s; white-space: nowrap;
+        }
+        .ig-float:hover { color: var(--rose); }
+
+        .scroll-line {
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            z-index: 2; width: 1px; height: 44px;
+            background: linear-gradient(180deg, transparent, var(--rose));
+            opacity: 0.35;
+            animation: growLine 2.2s ease-in-out infinite;
+        }
+        @keyframes growLine {
+            0%, 100% { transform: translateX(-50%) scaleY(0); transform-origin: top; }
+            50%       { transform: translateX(-50%) scaleY(1); transform-origin: top; }
+        }
+
+
+        /* ═══ PAGE 2 · STYLES ═══ */
+        #page-styles { padding-top: 80px; }
+
+        .style-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 26px; margin-bottom: 52px;
+        }
+        .style-card {
+            background: var(--white); border-radius: 22px; overflow: hidden;
+            box-shadow: 0 4px 24px var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .style-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 34px rgba(90, 61, 53, 0.15);
+        }
+        .card-img {
+            height: 210px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        .card-img-label {
+            font-family: 'Cormorant Garamond', serif; font-style: italic;
+            font-size: 0.92rem; color: rgba(90, 61, 53, 0.28); letter-spacing: 0.1em;
+        }
+        .ci-1 { background: linear-gradient(145deg, #F5DECE 0%, #EABCAA 100%); }
+        .ci-2 { background: linear-gradient(145deg, #EABCAA 0%, #D49A8A 100%); }
+        .ci-3 { background: linear-gradient(145deg, #D49A8A 0%, #C07B6D 100%); }
+
+        .card-body { padding: 28px 30px; }
+        .card-tag {
+            display: inline-block; padding: 3px 13px;
+            background: var(--nude-light); border-radius: 20px;
+            font-size: 0.72rem; color: var(--rose); letter-spacing: 0.12em; margin-bottom: 12px;
+        }
+        .card-price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.1rem; font-weight: 500; color: var(--brown); margin-bottom: 2px;
+        }
+        .card-name { font-size: 0.92rem; color: var(--brown-mid); margin-bottom: 14px; letter-spacing: 0.06em; }
+        .card-desc { font-size: 0.83rem; color: var(--brown-light); line-height: 2.1; }
+
+        .footer-note {
+            background: var(--cream-dark); border-radius: 18px;
+            padding: 30px 40px; text-align: center;
+            font-size: 0.86rem; color: var(--brown-mid); line-height: 2.3;
+            margin-bottom: 48px;
+        }
+        .section-cta { text-align: center; }
+
+
+        /* ═══ PAGE 3 · DATES ═══ */
+        #page-dates { padding-top: 80px; }
+
+        .slots-wrap { max-width: 680px; margin: 0 auto; }
+
+        .slots-banner {
+            background: linear-gradient(135deg, #F5DECE 0%, #EAC4B5 100%);
+            border-radius: 18px; padding: 26px 36px;
+            text-align: center; margin-bottom: 38px;
+        }
+        .slots-banner-icon { font-size: 1.3rem; margin-bottom: 8px; line-height: 1; }
+        .slots-banner-text { font-size: 0.86rem; color: var(--brown-mid); line-height: 2.2; }
+
+        .month-list { display: flex; flex-direction: column; gap: 18px; margin-bottom: 44px; }
+
+        .month-card {
+            background: var(--white); border-radius: 18px; padding: 26px 34px;
+            box-shadow: 0 4px 18px var(--shadow);
+            display: flex; justify-content: space-between; align-items: center; gap: 20px;
+        }
+        .month-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.55rem; color: var(--brown);
+        }
+        .month-right { text-align: right; }
+        .dots { display: flex; gap: 7px; justify-content: flex-end; margin-bottom: 9px; }
+        .dot { width: 11px; height: 11px; border-radius: 50%; }
+        .dot.taken     { background: var(--rose); }
+        .dot.available { background: var(--cream-dark); border: 1.5px solid var(--nude); }
+
+        .tag-full {
+            display: inline-block; padding: 5px 15px;
+            background: var(--cream-dark); border-radius: 20px;
+            font-size: 0.79rem; color: var(--brown-mid); letter-spacing: 0.1em;
+        }
+        .tag-avail { font-size: 0.84rem; color: var(--rose); font-weight: 500; }
+
+        .dates-cta { text-align: center; }
+        #loading-msg { text-align: center; padding: 36px; font-size: 0.84rem; color: var(--brown-light); }
+
+
+        /* ═══ PAGE 4 · FORM ═══ */
+        #page-form { padding-top: 80px; }
+
+        .form-wrap {
+            max-width: 680px; margin: 0 auto;
+            padding: 0 48px 88px;
+        }
+        .form-intro { text-align: center; margin-bottom: 46px; }
+        .form-intro p { font-size: 0.88rem; color: var(--brown-mid); line-height: 2.3; }
+        .form-divider { color: var(--nude-dark); margin: 20px 0; letter-spacing: 0.55em; font-size: 0.9rem; }
+
+        .form-q { margin-bottom: 26px; }
+        .form-label { display: block; font-size: 0.88rem; color: var(--brown); margin-bottom: 9px; letter-spacing: 0.04em; }
+        .form-label .icon { color: var(--nude-dark); margin-right: 5px; }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%; padding: 13px 17px;
+            background: var(--white);
+            border: 1.5px solid var(--nude-light); border-radius: 12px;
+            font-family: 'Noto Serif TC', serif; font-size: 0.86rem; color: var(--brown);
+            transition: border-color 0.25s, box-shadow 0.25s; outline: none;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            border-color: var(--nude-dark);
+            box-shadow: 0 0 0 3px rgba(234, 188, 170, 0.18);
+        }
+        .form-textarea { height: 114px; resize: vertical; line-height: 1.9; }
+        .form-select {
+            cursor: pointer; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 4.5L11 1' stroke='%23B09990' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 17px center;
+        }
+
+        .form-submit {
+            width: 100%; padding: 15px;
+            background: var(--rose); color: var(--white);
+            border: none; border-radius: 12px;
+            font-family: 'Noto Serif TC', serif; font-size: 0.93rem; letter-spacing: 0.22em;
+            cursor: pointer; transition: all 0.28s; margin-top: 14px;
+            box-shadow: 0 4px 22px rgba(192, 123, 109, 0.28);
+        }
+        .form-submit:hover:not(:disabled) { background: var(--nude-dark); transform: translateY(-2px); }
+        .form-submit:disabled { opacity: 0.58; cursor: not-allowed; }
+
+        .alert { padding: 13px 18px; border-radius: 10px; font-size: 0.83rem; margin-bottom: 20px; line-height: 1.8; }
+        .alert-err { background: #FCE8E8; color: #B33; border: 1px solid #F5C6C6; }
+        .alert-ok  { background: #EEF7EE; color: #2A7D2A; border: 1px solid #C3E6C3; }
+
+
+        /* ═══ PAGE 5 · SUCCESS ═══ */
+        #page-success {
+            min-height: 100vh;
+            align-items: center; justify-content: center;
+            text-align: center; padding: 40px;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--nude-light) 100%);
+        }
+        #page-success.active {
+            display: flex;
+        }
+        .success-inner { max-width: 480px; }
+        .success-heart { font-size: 2.8rem; display: block; margin-bottom: 28px; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+        .success-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 400;
+            color: var(--brown); margin-bottom: 20px;
+        }
+        .success-text { font-size: 0.88rem; color: var(--brown-mid); line-height: 2.5; margin-bottom: 44px; }
+        .success-em { font-style: italic; color: var(--rose); }
+
+        /* ─── 平板 Tablet  641 – 1023 px ─── */
+        @media (min-width: 641px) and (max-width: 1023px) {
+            nav { padding: 16px 32px; }
+            .nav-links { gap: 20px; }
+
+            .section { padding: 70px 36px; }
+            .form-wrap { padding: 0 36px 80px; }
+
+            /* 款式卡：前兩張並排，第三張置中 */
+            .style-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .style-cards .style-card:last-child {
+                grid-column: 1 / -1;
+                max-width: 420px;
+                margin: 0 auto;
+                width: 100%;
+            }
+
+            .slots-wrap { max-width: 100%; }
+            .slots-banner { padding: 22px 28px; }
+            .month-card  { padding: 22px 28px; }
+
+            .hero-plant-left  { width: 130px; }
+            .hero-plant-right { width: 110px; }
+        }
+
+        /* ─── 手機 Mobile  ≤ 640 px ─── */
+        @media (max-width: 640px) {
+            /* Navigation */
+            nav { padding: 13px 18px; }
+            .nav-logo { font-size: 1rem; }
+            .nav-links { gap: 14px; }
+            .nav-link  { font-size: 0.76rem; letter-spacing: 0.08em; }
+
+            /* Section */
+            .section { padding: 56px 18px; }
+            .section-deco { letter-spacing: 0.35em; }
+
+            /* Hero */
+            .hero-plant-left, .hero-plant-right { width: 72px; opacity: 0.13; }
+            .hero-eyebrow { font-size: 0.82rem; letter-spacing: 0.2em; }
+            .hero-sub { letter-spacing: 0.18em; margin-bottom: 36px; }
+            .hero-buttons { flex-direction: column; align-items: center; gap: 12px; }
+            .hero-buttons .btn-primary,
+            .hero-buttons .btn-outline { width: 88%; max-width: 280px; text-align: center; }
+            .ig-float { font-size: 0.72rem; bottom: 28px; }
+            .scroll-line { bottom: 76px; }
+
+            /* 款式頁 */
+            .style-cards { grid-template-columns: 1fr; gap: 20px; }
+            .card-img     { height: 180px; }
+            .footer-note  { padding: 20px 18px; font-size: 0.83rem; }
+
+            /* 名額頁 */
+            .slots-banner { padding: 18px 18px; }
+            .slots-banner-text { font-size: 0.83rem; }
+            .month-card {
+                flex-direction: column; text-align: center;
+                padding: 20px 18px; gap: 14px;
+            }
+            .month-right { text-align: center; }
+            .dots { justify-content: center; }
+            .month-label { font-size: 1.3rem; }
+
+            /* 表單頁 */
+            .form-wrap { padding: 0 18px 60px; }
+            .form-intro p { font-size: 0.84rem; }
+            /* 防止 iOS 自動放大 input */
+            .form-input,
+            .form-textarea,
+            .form-select { font-size: 16px; }
+            .form-label  { font-size: 0.84rem; }
+            .form-submit { font-size: 0.88rem; letter-spacing: 0.15em; }
+
+            /* 完成頁 */
+            .success-inner  { padding: 0 8px; }
+            .success-heart  { font-size: 2.2rem; }
+            .success-text   { font-size: 0.84rem; }
+
+            /* 按鈕 */
+            .btn-primary,
+            .btn-outline { padding: 12px 28px; font-size: 0.84rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav id="main-nav" style="display:none">
+    <div class="nav-logo" onclick="goPage('home')">結婚書約</div>
+    <div class="nav-links">
+        <button class="nav-link" onclick="goPage('styles')">款式介紹</button>
+        <button class="nav-link" onclick="goPage('dates')">我要預約</button>
+    </div>
+</nav>
+
+
+<!-- ═══ PAGE 1 · HOME ═══ -->
+<section id="page-home" class="page active">
+    <div class="hero">
+        <div class="hero-bg"></div>
+        <!--
+        【換成主圖】
+        把下方 opacity:0 改成 opacity:1，並填入圖片路徑：
+        <div class="hero-img" style="opacity:1; background-image:url('your-photo.jpg')"></div>
+        -->
+        <div class="hero-img"></div>
+        <div class="hero-overlay"></div>
+
+        <!-- Botanical SVG left -->
+        <svg class="hero-plant-left" viewBox="0 0 180 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M90 310 C90 310 55 230 72 170 C89 110 120 88 90 18" stroke="#C07B6D" stroke-width="2" stroke-linecap="round"/>
+            <path d="M88 195 C88 195 52 178 44 145 C36 112 65 100 76 130" stroke="#C07B6D" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M91 240 C91 240 130 222 140 188 C150 154 120 144 110 172" stroke="#C07B6D" stroke-width="1.6" stroke-linecap="round"/>
+            <ellipse cx="62" cy="138" rx="22" ry="13" fill="#EABCAA" opacity="0.5" transform="rotate(-28 62 138)"/>
+            <ellipse cx="120" cy="170" rx="22" ry="13" fill="#EABCAA" opacity="0.5" transform="rotate(32 120 170)"/>
+            <ellipse cx="90" cy="18" rx="8" ry="12" fill="#F5DECE" opacity="0.6"/>
+        </svg>
+
+        <!-- Botanical SVG right -->
+        <svg class="hero-plant-right" viewBox="0 0 180 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M90 310 C90 310 55 230 72 170 C89 110 120 88 90 18" stroke="#C07B6D" stroke-width="2" stroke-linecap="round"/>
+            <path d="M88 195 C88 195 52 178 44 145 C36 112 65 100 76 130" stroke="#C07B6D" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M91 240 C91 240 130 222 140 188 C150 154 120 144 110 172" stroke="#C07B6D" stroke-width="1.6" stroke-linecap="round"/>
+            <ellipse cx="62" cy="138" rx="22" ry="13" fill="#EABCAA" opacity="0.5" transform="rotate(-28 62 138)"/>
+            <ellipse cx="120" cy="170" rx="22" ry="13" fill="#EABCAA" opacity="0.5" transform="rotate(32 120 170)"/>
+        </svg>
+
+        <!-- Floating petals -->
+        <div class="petal" style="width:10px;height:14px;background:#EABCAA;left:18%;bottom:-20px;animation-delay:0s;animation-duration:14s;"></div>
+        <div class="petal" style="width:7px;height:10px;background:#F5DECE;left:42%;bottom:-20px;animation-delay:3s;animation-duration:11s;"></div>
+        <div class="petal" style="width:9px;height:12px;background:#D49A8A;left:65%;bottom:-20px;animation-delay:6s;animation-duration:13s;"></div>
+        <div class="petal" style="width:6px;height:9px;background:#EABCAA;left:80%;bottom:-20px;animation-delay:1.5s;animation-duration:15s;"></div>
+        <div class="petal" style="width:8px;height:11px;background:#F5DECE;left:55%;bottom:-20px;animation-delay:8s;animation-duration:12s;"></div>
+
+        <div class="hero-content">
+            <span class="hero-eyebrow">𓇗 &nbsp; handmade with love &nbsp; 𓇗</span>
+            <h1 class="hero-title">結婚書約</h1>
+            <p class="hero-sub">Wedding Certificate Design</p>
+            <div class="hero-buttons">
+                <button class="btn-outline" onclick="goPage('styles')">款式介紹</button>
+                <button class="btn-primary" onclick="goPage('dates')">我要預約</button>
+            </div>
+        </div>
+
+        <div class="scroll-line"></div>
+
+        <!-- IG 連結 — 把 href="#" 換成你的 Instagram 網址 -->
+        <a href="#" id="ig-link" class="ig-float" target="_blank" rel="noopener">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5"/>
+                <circle cx="12" cy="12" r="4.2"/>
+                <circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none"/>
+            </svg>
+            Instagram
+        </a>
+    </div>
+</section>
+
+
+<!-- ═══ PAGE 2 · STYLES ═══ -->
+<section id="page-styles" class="page">
+    <div class="section">
+        <div class="section-header">
+            <div class="section-deco">𓇗 &nbsp;&nbsp;&nbsp;&nbsp; 𓇗</div>
+            <h2 class="section-title">結婚書約設計與報價說明</h2>
+            <p class="section-subtitle">
+                目前書約設計分為三種方式，皆含 3 份厚磅象牙卡印刷<br>
+                整體設計＋寄送時間約為三週
+            </p>
+        </div>
+
+        <div class="style-cards">
+            <div class="style-card">
+                <!--
+                    【換成作品圖】移除 span，改為：
+                    <div class="card-img ci-1" style="background-image:url('style1.jpg'); background-size:cover;">
+                -->
+                <div class="card-img ci-1">
+                    <span class="card-img-label">款式示意圖</span>
+                </div>
+                <div class="card-body">
+                    <span class="card-tag">基本款</span>
+                    <div class="card-price">$888</div>
+                    <div class="card-name">公版設計</div>
+                    <p class="card-desc">從現有模板中選擇款式，進行基本資訊替換，適合想簡單完成、也喜歡既有風格的你們。</p>
+                </div>
+            </div>
+
+            <div class="style-card">
+                <div class="card-img ci-2">
+                    <span class="card-img-label">款式示意圖</span>
+                </div>
+                <div class="card-body">
+                    <span class="card-tag">最多人選 ♡</span>
+                    <div class="card-price">$1,500</div>
+                    <div class="card-name">公版微調</div>
+                    <p class="card-desc">在選擇模板的基礎上，可針對三項細節做小幅度調整（如文字排版、服裝細節、裝飾點綴），讓整體更貼近你們的樣子。</p>
+                </div>
+            </div>
+
+            <div class="style-card">
+                <div class="card-img ci-3">
+                    <span class="card-img-label">款式示意圖</span>
+                </div>
+                <div class="card-body">
+                    <span class="card-tag">全客製</span>
+                    <div class="card-price">$3,900</div>
+                    <div class="card-name">客製化設計</div>
+                    <p class="card-desc">從零開始設計，依照你們的故事與想像發展專屬畫面 ♫</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            如果還不確定適合哪一種，也可以先填寫表單，或直接跟我聊聊<br>
+            我們再一起慢慢找出最適合的方式 ♡
+        </div>
+
+        <div class="section-cta">
+            <button class="btn-primary" onclick="goPage('dates')">我要預約 →</button>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══ PAGE 3 · DATES ═══ -->
+<section id="page-dates" class="page">
+    <div class="section">
+        <div class="section-header">
+            <div class="section-deco">𓇗 &nbsp;&nbsp;&nbsp;&nbsp; 𓇗</div>
+            <h2 class="section-title">可預約日期</h2>
+        </div>
+
+        <div class="slots-wrap">
+            <div class="slots-banner">
+                <div class="slots-banner-icon">𓇗</div>
+                <div class="slots-banner-text">
+                    每月限制 <strong>5</strong> 個名額<br>
+                    額滿即自動停止接受預約
+                </div>
+            </div>
+
+            <div class="month-list" id="month-list">
+                <div id="loading-msg">名額資訊載入中⋯</div>
+            </div>
+
+            <div class="dates-cta" id="dates-cta" style="display:none">
+                <button class="btn-primary" onclick="goPage('form')">填寫預約資料 →</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ═══ PAGE 4 · FORM ═══ -->
+<section id="page-form" class="page">
+    <div class="section" style="padding-bottom:0">
+        <div class="section-header">
+            <div class="section-deco">𓇗 &nbsp;&nbsp;&nbsp;&nbsp; 𓇗</div>
+            <h2 class="section-title">結婚書約 預約填寫單</h2>
+        </div>
+    </div>
+
+    <div class="form-wrap">
+        <div class="form-intro">
+            <p>謝謝你願意讓我一起參與這份很重要的時刻 ♡</p>
+            <p>在開始之前，想先透過一些簡單的小問題，<br>慢慢了解你們的需求與想像。</p>
+            <p>不用一次填得很完整也沒關係，就像聊天一樣告訴我就好 💕</p>
+            <div class="form-divider">— ✦ —</div>
+        </div>
+
+        <div id="form-alert"></div>
+
+        <form id="booking-form" onsubmit="handleSubmit(event)">
+            <div class="form-q">
+                <label class="form-label"><span class="icon">✦</span>怎麼稱呼你們 <span style="color:var(--rose)">*</span></label>
+                <input type="text" class="form-input" name="name" placeholder="例：小美 ＆ 阿哲" required>
+            </div>
+
+            <div class="form-q">
+                <label class="form-label"><span class="icon">✦</span>怎麼聯繫你們 <span style="color:var(--rose)">*</span></label>
+                <input type="text" class="form-input" name="contact" placeholder="IG 帳號 或 Email" required>
+            </div>
+
+            <div class="form-q">
+                <label class="form-label"><span class="icon">✦</span>這次想做的是 <span style="color:var(--rose)">*</span></label>
+                <select class="form-select" name="package" required>
+                    <option value="">請選擇方案</option>
+                    <option value="公版設計 $888">公版設計 $888</option>
+                    <option value="公版微調 $1500">公版微調 $1,500</option>
+                    <option value="客製化設計 $3900">客製化設計 $3,900</option>
+                    <option value="還不確定，先聊聊">還不確定，想先聊聊 ♡</option>
+                </select>
+            </div>
+
+            <div class="form-q">
+                <label class="form-label"><span class="icon">✦</span>婚期（申請日與生效日是否為同一天）</label>
+                <input type="text" class="form-input" name="weddingDate" placeholder="例：2025年6月6日，同一天 / 申請6/1，生效6/6">
+            </div>
+
+            <div class="form-q">
+                <label class="form-label"><span class="icon">✦</span>希望收到的時間</label>
+                <input type="text" class="form-input" name="receiveDate" placeholder="例：婚期前兩週，大約 5 月底">
+            </div>
+
+            <div class="form-q">
+                <label class="form-label"><span class="icon">✦</span>有沒有心裡偷偷喜歡的書約樣子</label>
+                <textarea class="form-textarea" name="stylePreference" placeholder="款式 / 氛圍 / 顏色都可以說說看，隨意就好 ♡"></textarea>
+            </div>
+
+            <div class="form-q">
+                <label class="form-label"><span class="icon">✦</span>如果有一個畫面，是你們覺得很「你們的」</label>
+                <textarea class="form-textarea" name="ourMoment" placeholder="像是地方、日常、小習慣… 什麼都可以 ♡"></textarea>
+            </div>
+
+            <div class="form-q">
+                <label class="form-label"><span class="icon">✦</span>最後，如果想說點什麼給我</label>
+                <textarea class="form-textarea" name="message" placeholder="或是想讓我多認識你們一點，也很歡迎寫在這裡 ♡"></textarea>
+            </div>
+
+            <button type="submit" class="form-submit" id="submit-btn">送出預約 ♡</button>
+        </form>
+    </div>
+</section>
+
+
+<!-- ═══ PAGE 5 · SUCCESS ═══ -->
+<section id="page-success" class="page">
+    <div class="success-inner">
+        <span class="success-heart">♡</span>
+        <h2 class="success-title">預約完成了</h2>
+        <p class="success-text">
+            謝謝你的填寫，我會在近期與你聯繫 ♡<br><br>
+            在正式開始之前，期待可以慢慢認識你們<br>
+            也讓這份書約好好承載你們的故事<br><br>
+            <span class="success-em">— 期待與你們相遇 —</span>
+        </p>
+        <button class="btn-outline" onclick="goPage('home')">回到首頁</button>
+    </div>
+</section>
+
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   ★ 設定區 — 只需要改這裡 ★
+   ═══════════════════════════════════════════════════════ */
+const CFG = {
+
+    // ── Formspree 表單 ID ──────────────────────────────
+    // 步驟：
+    //   1. 去 https://formspree.io 免費註冊
+    //   2. 點「New Form」，名稱填「結婚書約預約」
+    //   3. 複製畫面上的 Form ID（8位英數，例如 xpwzabcd）
+    //   4. 貼在下方引號裡
+    FORMSPREE_ID: 'xpwzabcd',
+
+    // ── 名額管理（手動更新）────────────────────────────
+    // 每次有人預約，把 THIS_MONTH_USED 加 1
+    // 換月時把它改回 0
+    THIS_MONTH_USED:  0,   // ← 本月已預約幾筆
+    THIS_MONTH_LABEL: '2025年5月',   // ← 本月顯示文字（換月時一起改）
+    NEXT_MONTH_USED:  0,   // ← 下個月已預約幾筆
+    NEXT_MONTH_LABEL: '2025年6月',   // ← 下月顯示文字
+    SLOTS_LIMIT: 5,
+
+    // ── Instagram 網址 ─────────────────────────────────
+    IG: 'https://www.instagram.com/your_account'
+};
+
+/* ═══════════════════════════════════════════════════════
+   以下不需要修改
+   ═══════════════════════════════════════════════════════ */
+document.getElementById('ig-link').href = CFG.IG;
+
+/* ─── 頁面切換 ─── */
+function goPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.getElementById('main-nav').style.display = (name === 'home') ? 'none' : 'flex';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (name === 'dates') loadSlots();
+}
+
+/* ─── 名額顯示（不需要 API，直接讀 CFG）─── */
+function loadSlots() {
+    const list = document.getElementById('month-list');
+    const cta  = document.getElementById('dates-cta');
+
+    const months = [
+        { label: CFG.THIS_MONTH_LABEL, used: CFG.THIS_MONTH_USED },
+        { label: CFG.NEXT_MONTH_LABEL, used: CFG.NEXT_MONTH_USED }
+    ];
+
+    let html = '', hasSlot = false;
+
+    for (const { label, used } of months) {
+        const isFull = used >= CFG.SLOTS_LIMIT;
+        const avail  = Math.max(0, CFG.SLOTS_LIMIT - used);
+        if (\!isFull) hasSlot = true;
+
+        const dots = Array.from({ length: CFG.SLOTS_LIMIT }, (_, i) =>
+            `<div class="dot ${i < used ? 'taken' : 'available'}"></div>`
+        ).join('');
+
+        const status = isFull
+            ? '<span class="tag-full">本月已額滿</span>'
+            : `<span class="tag-avail">尚餘 ${avail} 個名額</span>`;
+
+        html += `
+            <div class="month-card">
+                <div class="month-label">${label}</div>
+                <div class="month-right">
+                    <div class="dots">${dots}</div>
+                    ${status}
+                </div>
+            </div>`;
+    }
+
+    list.innerHTML = html;
+    cta.style.display = hasSlot ? 'block' : 'none';
+}
+
+/* ─── 表單送出（Formspree）─── */
+async function handleSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn  = document.getElementById('submit-btn');
+    const alrt = document.getElementById('form-alert');
+
+    // 名額確認
+    if (CFG.THIS_MONTH_USED >= CFG.SLOTS_LIMIT) {
+        showAlert('本月名額已滿，歡迎預約下個月 ♡', 'err');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = '送出中⋯';
+    alrt.innerHTML = '';
+
+    const body = {
+        稱呼:         form.name.value.trim(),
+        聯繫方式:     form.contact.value.trim(),
+        選擇方案:     form.package.value,
+        婚期:         form.weddingDate.value.trim(),
+        希望收到時間: form.receiveDate.value.trim(),
+        書約樣子:     form.stylePreference.value.trim(),
+        你們的畫面:   form.ourMoment.value.trim(),
+        備註:         form.message.value.trim()
+    };
+
+    try {
+        const res  = await fetch(`https://formspree.io/f/${CFG.FORMSPREE_ID}`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body:    JSON.stringify(body)
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            goPage('success');
+        } else {
+            showAlert(data.error || '送出時發生問題，請稍後再試 🌸', 'err');
+            btn.disabled = false;
+            btn.textContent = '送出預約 ♡';
+        }
+    } catch {
+        showAlert('送出時發生問題，請確認網路連線 🌸', 'err');
+        btn.disabled = false;
+        btn.textContent = '送出預約 ♡';
+    }
+}
+
+function showAlert(msg, type) {
+    const el = document.getElementById('form-alert');
+    el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</body>
+</html>
