@@ -119,14 +119,14 @@
             position: relative; overflow: hidden;
         }
 
-        .hero-bg {
+        .hero-bg { pointer-events: none;
             position: absolute; inset: 0;
             background:
                 radial-gradient(ellipse 90% 70% at 25% 35%, rgba(245, 222, 206, 0.9) 0%, transparent 65%),
                 radial-gradient(ellipse 70% 80% at 75% 65%, rgba(212, 154, 138, 0.55) 0%, transparent 65%),
                 radial-gradient(ellipse 120% 120% at 50% 50%, #FAF7F2 0%, #F0E4D8 100%);
         }
-        .hero-img {
+        .hero-img { pointer-events: none;
             position: absolute; inset: 0; opacity: 0;
             background: center/cover no-repeat;
             transition: opacity 0.5s;
@@ -717,7 +717,7 @@ const CFG = {
     //   2. 點「New Form」，名稱填「結婚書約預約」
     //   3. 複製畫面上的 Form ID（8位英數，例如 xpwzabcd）
     //   4. 貼在下方引號裡
-    FORMSPREE_ID: 'xpwzabcd',
+    FORMSPREE_ID: 'mkokydde',
 
     // ── 名額管理（手動更新）────────────────────────────
     // 每次有人預約，把 THIS_MONTH_USED 加 1
