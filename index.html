@@ -761,7 +761,7 @@ function loadSlots() {
     for (const { label, used } of months) {
         const isFull = used >= CFG.SLOTS_LIMIT;
         const avail  = Math.max(0, CFG.SLOTS_LIMIT - used);
-        if (\!isFull) hasSlot = true;
+        if (!isFull) hasSlot = true;
 
         const dots = Array.from({ length: CFG.SLOTS_LIMIT }, (_, i) =>
             `<div class="dot ${i < used ? 'taken' : 'available'}"></div>`
